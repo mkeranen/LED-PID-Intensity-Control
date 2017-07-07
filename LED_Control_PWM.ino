@@ -22,7 +22,7 @@ void ledOFF(void){
 }
 //----------------------------------------------------------------------------------------------------
 //Function: Reads in emitted LED intensity via photodiode, returns measured intensity
-float getLightIntensity(void){
+double getLightIntensity(void){
   int i;
   const int n = 20; //Number of elements to average
   int intensityArray[n];
