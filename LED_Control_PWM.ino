@@ -65,7 +65,8 @@ double desiredIntensity = 120;    //Setpoint: The initialization of this can be 
 double ledIntensity = 255;        //Output: Intesity value written to PWM pin controlling LED, initialized high
 double Kp = 0, Ki = .5, Kd = 0;   //PID Parameters: Not tuned, could be improved, but oscillations are minimal here
 
-PID myPID(&measuredIntensity, &ledIntensity, &desiredIntensity, Kp, Ki, Kd, DIRECT);
+double smoothIntensity = 0;       //Smoothed measuredIntensity
+PID myPID(&smoothIntensity, &ledIntensity, &desiredIntensity, Kp, Ki, Kd, DIRECT);
 //----------------------------------------------------------------------------------------------------
 //Setup Pinmodes, serial monitor
 void setup() {
@@ -89,12 +90,14 @@ void loop() {
 
   //Get light intensity measured by Photodiode
   measuredIntensity = getLightIntensity();
+  //Smoothing
+  smoothIntensity += (measuredIntensity - smoothIntensity) * 0.5;
 
   //Calculate next output
   myPID.Compute();
 
   //Output CSV format for ease of plotting etc.
-  Serial.print(measuredIntensity);
+  Serial.print(smoothIntensity);
   Serial.print(",");
   Serial.print(desiredIntensity);
   Serial.print(",");
