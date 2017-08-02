@@ -54,6 +54,7 @@ x=0
 try:
     
     while x<40: #Change while condition for actual use
+        #flush input buffer for fresh data to operate on each loop    
         ser.flushInput()
         line = str(ser.readline())      #read data from serial port
         ledList = line.split(",")     #split data via ','
@@ -86,9 +87,13 @@ try:
         
         #Plot the data received, clear the figure for a fresh re-draw each loop
         plt.clf()
-        plt.plot(xList, smoothIntensityList, 'r-')
-        plt.plot(xList, desiredIntensityList, 'b-')
-        plt.plot(xList, ledControlList, 'g-')
+        plt.title('LED PID Control')
+        plt.ylabel('Raw Counts')
+        plt.xlabel('Data Point #')
+        smoothIntLine = plt.plot(xList, smoothIntensityList, 'r-', label='Measured Intensity')
+        desiredIntLine = plt.plot(xList, desiredIntensityList, 'b-', label='Desired Intensity')
+        ledControlLine = plt.plot(xList, ledControlList, 'g-', label='LED Control')
+        plt.legend(loc='upper left')
         plt.show()
         #Need this delay to allow for time to draw each figure
         plt.pause(0.05)
