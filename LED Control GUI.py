@@ -7,6 +7,7 @@ Created on Tue Aug  1 08:35:34 2017
 
 import serial
 import matplotlib.pyplot as plt
+from time import sleep
 #plt.switch_backend("QT5Agg")
 
 #Serial communication with datastream
@@ -28,48 +29,76 @@ pltHistoryLength = 20
 #Turn on interactive plotting
 plt.ion()
 
-#Loop to handle data sent in "X,Y,Z" by Arduino
-x=0
+#This is an attempt at an input timeout. This function waits 1 second for
+#user input (via keyboard interrupt and then input), if it doesnt receive it, 
+#it exits the function and enters back into the main loop.
+def changeDesiredIntensity():
+    
+    #Tell the user how to break the loop and enter their desired intensity
+    try:
+        print("Press 'Ctrl + C', then enter desired intensity: ")
+        for i in range(0,1):
+            sleep(.5)
+        print ("No input")
+    #if user enters keyboard interrupt, prompt for input, and write to serial
+    except KeyboardInterrupt:
+        print("New input attempt")
+        newIntensity = input("Enter desired intensity: ")
+        ser.write(str(newIntensity).encode())
+    return 0
 
-#Change while condition for actual use
-while x<40:
-    line = str(ser.readline())      #read data from serial port
-    ledList = line.split(",")     #split data via ','
+#Loop to handle data sent in "X,Y,Z" by Arduino. This is currently encapsulated
+#in a try-catch because if user enters Keyboard Interrupt while not inside
+#of 'changeDesiredIntensity()', the loop breaks and the program stops.
+x=0
+try:
     
-    #Separate items, trim unnecessary characters, cast to float datatype
-    smoothIntensity = ledList[0]
-    smoothIntensity = float(smoothIntensity[2:])
-    desiredIntensity = float(ledList[1])
-    ledControl = ledList[2]
-    ledControl = float(ledControl[:-5])
-    x+=1
+    while x<40: #Change while condition for actual use
+        ser.flushInput()
+        line = str(ser.readline())      #read data from serial port
+        ledList = line.split(",")     #split data via ','
+        
+        #Separate items, trim unnecessary characters, cast to float datatype
+        smoothIntensity = ledList[0]
+        smoothIntensity = float(smoothIntensity[2:])
+        desiredIntensity = float(ledList[1])
+        ledControl = ledList[2]
+        ledControl = float(ledControl[:-5])
+        x+=1
+        
+        #Build array until data reaches length set by 'pltHistoryLength' variable
+        if x<pltHistoryLength:
+            smoothIntensityList.append(smoothIntensity)
+            desiredIntensityList.append(desiredIntensity)
+            ledControlList.append(ledControl)
+            xList.append(x)
+        #Once enough data is captured, append the newest data point and 
+        #delete the oldest
+        else:
+            smoothIntensityList.append(smoothIntensity)
+            del smoothIntensityList[0]
+            desiredIntensityList.append(desiredIntensity)
+            del desiredIntensityList[0]
+            ledControlList.append(ledControl)
+            del ledControlList[0]
+            xList.append(x)
+            del xList[0]
+        
+        #Plot the data received, clear the figure for a fresh re-draw each loop
+        plt.clf()
+        plt.plot(xList, smoothIntensityList, 'r-')
+        plt.plot(xList, desiredIntensityList, 'b-')
+        plt.plot(xList, ledControlList, 'g-')
+        plt.show()
+        #Need this delay to allow for time to draw each figure
+        plt.pause(0.05)
+        
+        #Check for new desired LED intensity
+        changeDesiredIntensity()
+        
+except KeyboardInterrupt:
+    pass
     
-    #Build array until data reaches length set by 'pltHistoryLength' variable
-    if x<pltHistoryLength:
-        smoothIntensityList.append(smoothIntensity)
-        desiredIntensityList.append(desiredIntensity)
-        ledControlList.append(ledControl)
-        xList.append(x)
-    #Once enough data is captured, append the newest data point and 
-    #delete the oldest
-    else:
-        smoothIntensityList.append(smoothIntensity)
-        del smoothIntensityList[0]
-        desiredIntensityList.append(desiredIntensity)
-        del desiredIntensityList[0]
-        ledControlList.append(ledControl)
-        del ledControlList[0]
-        xList.append(x)
-        del xList[0]
-    
-    #Plot the data received, clear the figure for a fresh re-draw each loop
-    plt.clf()
-    plt.plot(xList, smoothIntensityList, 'r-')
-    plt.plot(xList, desiredIntensityList, 'b-')
-    plt.plot(xList, ledControlList, 'g-')
-    plt.show()
-    #Need this delay to allow for time to draw each figure
-    plt.pause(0.05)
     
 #print for debug
 #print(xArray, ", ", smoothIntensityArray, ", ", desiredIntensityArray, ", ", ledControlArray)

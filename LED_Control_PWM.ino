@@ -101,5 +101,6 @@ void loop() {
   Serial.print(",");
   Serial.print(desiredIntensity);
   Serial.print(",");
-  Serial.println(ledIntensity);  
+  Serial.println(ledIntensity);
+  delay(500);
   }
