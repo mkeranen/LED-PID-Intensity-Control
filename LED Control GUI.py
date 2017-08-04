@@ -37,8 +37,7 @@ def changeDesiredIntensity():
     #Tell the user how to break the loop and enter their desired intensity
     try:
         print("Press 'Ctrl + C', then enter desired intensity: ")
-        for i in range(0,1):
-            sleep(.5)
+        sleep(.5)
         print ("No input")
     #if user enters keyboard interrupt, prompt for input, and write to serial
     except KeyboardInterrupt:
