@@ -4,23 +4,20 @@ Created on Tue Aug  1 08:35:34 2017
 
 @author: mkeranen
 """
+#This code acts as a GUI for the included Arduino program. This Python script
+#takes in 3 .csv items via serial communication, separates, and plots them. The 
+#user also has the opportunity to enter a new desired intensity and send it 
+#back to the Arduino to modify the PWM drive of the LED.
 
 import serial
 import matplotlib.pyplot as plt
 from time import sleep
-#plt.switch_backend("QT5Agg")
 
 #Serial communication with datastream
 ser = serial.Serial()
 ser.baudrate = 9600
 ser.port = 'COM4'
 ser.open()
-
-#Initialize lists to store data for plotting
-#smoothIntensityList = []
-#desiredIntensityList = []
-#ledControlList = []
-#xList = [] 
 
 #This sets the length of data to be stored in each list, also controls
 #the amount of data shown in the figure at once
@@ -48,7 +45,8 @@ def changeDesiredIntensity():
 
 #Loop to handle data sent in "X,Y,Z" by Arduino. This is currently encapsulated
 #in a try-catch because if user enters Keyboard Interrupt while not inside
-#of 'changeDesiredIntensity()', the loop breaks and the program stops.
+#of 'changeDesiredIntensity()', the loop breaks and the program stops. The current
+#exception handling procedure calls main() and the program restarts.
 
 def main():
     smoothIntensityList = []
@@ -107,11 +105,11 @@ def main():
             
     except KeyboardInterrupt:
         main()
-
+        
+#Start program
 if __name__ == '__main__':
     main()
-#print for debug
-#print(xArray, ", ", smoothIntensityArray, ", ", desiredIntensityArray, ", ", ledControlArray)
+    
 #Close the serial port and wait for user input to close figure and terminal
 ser.close()
 print("Press any key to exit: ")
