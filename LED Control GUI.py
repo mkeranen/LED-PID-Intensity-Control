@@ -43,10 +43,7 @@ def changeDesiredIntensity():
         ser.write(str(newIntensity).encode())
     return 0
 
-#Loop to handle data sent in "X,Y,Z" by Arduino. This is currently encapsulated
-#in a try-catch because if user enters Keyboard Interrupt while not inside
-#of 'changeDesiredIntensity()', the loop breaks and the program stops. The current
-#exception handling procedure calls main() and the program restarts.
+#Loop to handle data sent in "X,Y,Z" by Arduino. 
 
 def main():
     smoothIntensityList = []
