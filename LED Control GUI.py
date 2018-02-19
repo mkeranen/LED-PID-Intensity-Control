@@ -4,11 +4,7 @@ Created on Tue Aug  1 08:35:34 2017
 
 @author: mkeranen
 """
-#This code acts as a GUI for the included Arduino program. This Python script
-#takes in 3 .csv items via serial communication, separates, and plots them. The 
-#user also has the opportunity to enter a new desired intensity and send it 
-#back to the Arduino to modify the PWM drive of the LED.
-
+#Acts as a GUI for the paired Arduino program. User can modify the PWM drive of the LED via GUI and serial com port.
 import serial
 import matplotlib.pyplot as plt
 from time import sleep
